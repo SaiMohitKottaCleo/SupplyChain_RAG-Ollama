@@ -1,0 +1,48 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# Cleo Supply Chain Intelligence — Python 3.12 dependencies
+# ─────────────────────────────────────────────────────────────────────────────
+
+# ── Vector DB ──────────────────────────────────────────────────────────────
+chromadb==0.5.3              # Embedded vector database (HNSW indexing, persistent)
+
+# ── Embeddings ─────────────────────────────────────────────────────────────
+sentence-transformers==3.0.1 # all-MiniLM-L6-v2 encoder (pulls torch automatically)
+
+# ── Sparse retrieval ───────────────────────────────────────────────────────
+rank-bm25==0.2.2             # BM25Okapi implementation
+
+# ── Local LLM ──────────────────────────────────────────────────────────────
+ollama==0.3.0                # Ollama Python client
+
+# ── Document loaders ───────────────────────────────────────────────────────
+pypdf==4.3.1                 # PDF text extraction (pure Python, no system deps)
+python-docx==1.1.2           # DOCX paragraph/heading extraction
+beautifulsoup4==4.12.3       # HTML scraping for URL loader
+requests==2.32.3             # HTTP requests
+
+# ── UI ─────────────────────────────────────────────────────────────────────
+streamlit==1.37.0            # Chat UI (has native st.chat_message — no streamlit-chat needed)
+
+# ── Data & utilities ───────────────────────────────────────────────────────
+pandas==2.2.2
+numpy==1.26.4
+python-dotenv==1.0.1         # Load .env files
+tqdm==4.66.4                 # Progress bars
+loguru==0.7.2                # Structured logging (better than stdlib logging)
+pydantic==2.8.2              # Data validation / config models
+
+# ── Evaluation ─────────────────────────────────────────────────────────────
+rouge-score==0.1.2           # ROUGE metric for answer quality scoring
+nltk==3.8.1                  # Tokenizers used by rouge-score
+
+# ── Phase 2 prep (fine-tuning dataset generation) ──────────────────────────
+datasets==2.20.0             # HuggingFace datasets — JSONL loading for fine-tuning
+anthropic>=0.30.0            # Claude API for synthetic Q&A generation
+
+# ── NOT included (and why) ─────────────────────────────────────────────────
+# unstructured==0.14.10   → heavy, requires system-level libs (poppler, libmagic)
+#                           on Windows. We wrote our own loaders in loaders.py.
+# langchain / langchain-community / langchain-chroma → not imported anywhere
+#                           in our actual code. The spec listed them but they're
+#                           not used. Adds 50+ transitive deps for nothing.
+# streamlit-chat==0.1.1   → abandoned. Streamlit 1.31+ has native chat components.

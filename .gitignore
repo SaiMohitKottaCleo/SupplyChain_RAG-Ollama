@@ -1,0 +1,51 @@
+# ── Python ────────────────────────────────────────────────────────────────
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.Python
+*.egg-info/
+dist/
+build/
+.eggs/
+
+# ── Virtual environment ───────────────────────────────────────────────────
+venv/
+.venv/
+env/
+
+# ── Secrets ───────────────────────────────────────────────────────────────
+.env
+# (keep .env.example — it's a template with no real keys)
+
+# ── Vector DB & BM25 indexes (generated, large, rebuilt by scripts) ───────
+chroma_db/
+*.pkl
+
+# ── Downloaded / generated data (re-creatable, potentially large) ─────────
+data/raw/*
+data/processed/*
+data/synthetic_qa/*
+# Keep the directory structure itself
+!data/raw/.gitkeep
+!data/processed/.gitkeep
+!data/synthetic_qa/.gitkeep
+
+# ── Evaluation output ─────────────────────────────────────────────────────
+evaluation_results.json
+
+# ── HuggingFace model cache ───────────────────────────────────────────────
+.cache/
+
+# ── OS / editor noise ─────────────────────────────────────────────────────
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+.idea/
+.vscode/
+
+# ── Test artifacts ────────────────────────────────────────────────────────
+.pytest_cache/
+htmlcov/
+.coverage
