@@ -28,7 +28,7 @@ from app.config import COLLECTIONS, DATA_DIR
 from loguru import logger
 
 
-SUPPORTED_EXTENSIONS = {".pdf", ".docx", ".txt", ".md"}
+SUPPORTED_EXTENSIONS = {".pdf", ".docx", ".txt", ".md", ".xlsx", ".xls", ".csv"}
 
 
 def discover_files(data_raw: Path, target_collection: str = None):

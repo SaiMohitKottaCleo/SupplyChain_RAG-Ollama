@@ -85,8 +85,8 @@ with st.sidebar:
 
     uploaded_file = st.file_uploader(
         "Drop a file here",
-        type=["pdf", "docx", "txt", "md"],
-        help="PDF, DOCX, TXT, or Markdown",
+        type=["pdf", "docx", "txt", "md", "xlsx", "xls", "csv"],
+        help="PDF, DOCX, TXT, Markdown, Excel, or CSV",
     )
 
     if uploaded_file is not None:

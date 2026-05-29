@@ -4,6 +4,7 @@ import requests
 from bs4 import BeautifulSoup
 import pypdf
 from docx import Document
+import pandas as pd
 from loguru import logger
 
 
@@ -169,6 +170,67 @@ class DocumentLoader:
             return []
 
     @staticmethod
+    def load_excel(path: Path) -> List[Dict[str, Any]]:
+        """
+        Load an Excel (.xlsx / .xls) or CSV file.
+
+        Strategy — one dict per sheet (Excel) or one dict total (CSV):
+          - Each row is rendered as "Column: value  |  Column: value  | ..."
+          - All rows for a sheet are joined into a single text block
+          - Empty rows and fully-null rows are skipped
+
+        Why row-by-row text instead of raw CSV?
+        The chunker splits on semantic boundaries like paragraph breaks.
+        "Column: value | Column: value" lines give the sentence-transformer
+        enough natural-language signal to embed meaningfully — a raw CSV
+        header line like "part_id,qty,uom" does not.
+        """
+        docs = []
+        try:
+            if path.suffix.lower() == ".csv":
+                sheets = {"sheet": pd.read_csv(str(path), dtype=str)}
+            else:
+                sheets = pd.read_excel(str(path), sheet_name=None, dtype=str)
+
+            for sheet_name, df in sheets.items():
+                df = df.dropna(how="all").fillna("")
+                if df.empty:
+                    continue
+
+                lines = []
+                for _, row in df.iterrows():
+                    parts = [
+                        f"{col}: {val}"
+                        for col, val in row.items()
+                        if str(val).strip()
+                    ]
+                    if parts:
+                        lines.append("  |  ".join(parts))
+
+                if not lines:
+                    continue
+
+                text = f"Sheet: {sheet_name}\n\n" + "\n".join(lines)
+                docs.append({
+                    "text": text,
+                    "metadata": {
+                        "source":       path.name,
+                        "source_type":  path.suffix.lstrip("."),
+                        "sheet":        sheet_name,
+                        "rows":         len(lines),
+                    }
+                })
+
+            logger.info(
+                f"Excel/CSV loaded: {path.name} — "
+                f"{len(docs)} sheet(s), "
+                f"{sum(d['metadata']['rows'] for d in docs)} rows"
+            )
+        except Exception as e:
+            logger.error(f"Failed to load Excel/CSV {path}: {e}")
+        return docs
+
+    @staticmethod
     def load_text(text: str, source_name: str = "inline_text") -> List[Dict[str, Any]]:
         """
         Wrap a raw string as a document dict — used when the caller already
@@ -212,6 +274,8 @@ class DocumentLoader:
             return cls.load_docx(path)
         elif ext in [".txt", ".md"]:
             return cls.load_txt(path)
+        elif ext in [".xlsx", ".xls", ".csv"]:
+            return cls.load_excel(path)
         else:
             logger.warning(f"Unsupported file type: {ext} — skipping {path.name}")
             return []
