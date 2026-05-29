@@ -168,14 +168,37 @@ class DocumentLoader:
             logger.error(f"Failed to load URL {url}: {e}")
             return []
 
+    @staticmethod
+    def load_text(text: str, source_name: str = "inline_text") -> List[Dict[str, Any]]:
+        """
+        Wrap a raw string as a document dict — used when the caller already
+        has text in memory (e.g., Streamlit paste box, API input).
+        """
+        if not text.strip():
+            return []
+        logger.info(f"Text loaded: '{source_name}' — {len(text):,} characters")
+        return [{
+            "text": text,
+            "metadata": {
+                "source":      source_name,
+                "source_type": "text",
+            }
+        }]
+
     @classmethod
     def load(cls, source) -> List[Dict[str, Any]]:
         """
         Auto-detect source type and dispatch to the right loader.
-        Accepts: URL string, Path object, or string file path.
+        Accepts: URL string, Path object, file path string, or raw text string.
+
+        Raw text detection: a string containing newlines cannot be a file path.
         """
-        if isinstance(source, str) and source.startswith("http"):
-            return cls.load_url(source)
+        if isinstance(source, str):
+            if source.startswith("http"):
+                return cls.load_url(source)
+            # Multi-line strings are raw text, not paths
+            if "\n" in source:
+                return cls.load_text(source)
 
         path = Path(source)
         if not path.exists():
